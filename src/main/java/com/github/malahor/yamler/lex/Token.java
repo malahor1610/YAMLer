@@ -15,11 +15,11 @@ public class Token {
   }
 
   public static Token identifier(String identifier) {
-    return new Token(TokenType.IDENTIFIER, identifier);
+    return new Token(TokenType.IDENTIFIER, identifier.strip());
   }
 
   public static Token value(String value) {
-    return new Token(TokenType.VALUE, value);
+    return new Token(TokenType.VALUE, value.strip());
   }
 
   public int getIndentation() {

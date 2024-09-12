@@ -30,7 +30,15 @@ public class YamlParserTest {
                 .name("YAML:parser")
                 .steps(5)
                 .finished(false)
-                .tags(Tags.builder().difficulty("intermediate\\n").type("parsing\nyaml\tfiles").build())
+                .introduction(
+                    "YAML (which stands for YAML Ain’t Markup Language) is a lightweight data-interchange format often used for configuration.\nProbably most notably for AWS CloudFormation and OpenAPI specifications.")
+                .description(
+                    "Building a YAML parser is an easy way to learn about parsing techniques which are useful for everything from parsing simple data formats through to building a fully featured compiler for a programming language.")
+                .tags(
+                    Tags.builder()
+                        .difficulty("intermediate\\n")
+                        .type("parsing\nyaml\tfiles")
+                        .build())
                 .build())
         .link(null)
         .author(null)

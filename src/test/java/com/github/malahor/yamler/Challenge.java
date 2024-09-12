@@ -15,4 +15,6 @@ public class Challenge {
   private Tags tags;
   private int steps;
   private boolean finished;
+  private String introduction;
+  private String description;
 }

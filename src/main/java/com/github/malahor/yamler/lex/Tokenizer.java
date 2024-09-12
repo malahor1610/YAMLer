@@ -11,6 +11,10 @@ public class Tokenizer {
 
   private static final String SEPARATOR = ":\s";
   private List<Token> tokens = new LinkedList<>();
+  private int indentation = 0;
+  private boolean foldMode;
+  private boolean pipeMode;
+  private String longValue = "";
 
   public List<Token> tokenize(InputStream input) {
     try (var in = new BufferedReader(new InputStreamReader(input))) {
@@ -22,25 +26,57 @@ public class Tokenizer {
   }
 
   private void tokenizeLine(String line) {
+    if (foldMode || pipeMode) {
+      if (determineIndentation(line) <= this.indentation) {
+        closeSpecialMode();
+        tokenizeBasic(line);
+      } else {
+        continueSpecialMode(line);
+      }
+    } else tokenizeBasic(line);
+  }
+
+  private void tokenizeBasic(String line) {
     saveIndentation(line);
     saveIndetifier(line);
-    if (line.matches(".*:.+")) saveValue(line);
+    if (line.matches(".*:\s+>")) foldMode = true;
+    else if (line.matches(".*:\s+\\|")) pipeMode = true;
+    else if (line.matches(".*:.+")) saveValue(line);
+  }
+
+  private void continueSpecialMode(String line) {
+    longValue += line.strip() + (pipeMode ? "\n" : " ");
+  }
+
+  private void closeSpecialMode() {
+    foldMode = false;
+    pipeMode = false;
+    saveSpecialValue();
+  }
+
+  private int determineIndentation(String line) {
+    var spaces = line.length() - line.stripLeading().length();
+    return spaces / 2;
   }
 
   private void saveIndentation(String line) {
-    var spaces = line.length() - line.stripLeading().length();
-    var indentation = spaces / 2;
+    indentation = determineIndentation(line);
     tokens.add(Token.indentation(indentation));
   }
 
   private void saveIndetifier(String line) {
     var endIndex = line.contains(SEPARATOR) ? line.indexOf(SEPARATOR) : line.lastIndexOf(":");
     var identifier = line.substring(0, endIndex);
-    tokens.add(Token.identifier(identifier.strip()));
+    tokens.add(Token.identifier(identifier));
   }
 
   private void saveValue(String line) {
     var value = line.substring(line.indexOf(SEPARATOR) + SEPARATOR.length());
     tokens.add(Token.value(value));
+  }
+
+  private void saveSpecialValue() {
+    tokens.add(Token.value(longValue));
+    longValue = "";
   }
 }

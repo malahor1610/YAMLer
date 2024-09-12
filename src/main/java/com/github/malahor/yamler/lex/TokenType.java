@@ -4,6 +4,6 @@ public enum TokenType {
   IDENTIFIER,
   VALUE,
   INDENTATION,
-  BREAK_LINE,
+  TEXT_SPECIAL,
   COMMENT,
 }

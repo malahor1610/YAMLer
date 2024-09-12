@@ -13,11 +13,11 @@ public class ValueProvider {
       case String v when v.matches("-(\\.inf|\\.Inf|\\.INF)") -> Float.NEGATIVE_INFINITY;
       case String v when v.matches("[+]?(\\.inf|\\.Inf|\\.INF)") -> Float.POSITIVE_INFINITY;
       case String v when v.matches("\\.nan|\\.NaN|\\.NAN") -> Float.NaN;
-      default -> handleString(value);
+      default -> handleQuotedString(value);
     };
   }
 
-  private static String handleString(String value) {
+  private static String handleQuotedString(String value) {
     if (value.matches("\".*\"")) return value.replaceAll("\"", "").translateEscapes();
     return value;
   }
