@@ -1,7 +1,6 @@
 package com.github.malahor.yamler.parse;
 
 import com.github.malahor.yamler.lex.Token;
-import com.github.malahor.yamler.lex.TokenType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -16,54 +15,53 @@ public class Parser {
   public <T> T parse(List<Token> tokens, Class<T> resultType) {
     try {
       var result = resultType.getConstructor().newInstance();
-      var setters =
-          Arrays.stream(resultType.getMethods())
-              .filter(method -> method.getName().startsWith("set"))
-              .toList();
+      var setters = getSetters(resultType);
       Optional<Method> setter = Optional.empty();
-      Token previous = null;
-      boolean out = false;
       for (; currentToken < tokens.size(); currentToken++) {
         var token = tokens.get(currentToken);
         switch (token.getType()) {
           case IDENTIFIER -> setter = setter(setters, token.getValue());
-          case VALUE ->
-              setter.ifPresent(
-                  s -> {
-                    try {
-                      s.invoke(result, token.getValue());
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                      throw new RuntimeException(e);
-                    }
-                  });
+          case VALUE -> setter.ifPresent(s -> setValue(result, s, token.getValue()));
           case INDENTATION -> {
-            if (previous != null
-                && previous.getType().equals(TokenType.IDENTIFIER)
-                && indentation < Integer.parseInt(token.getValue())) {
-              setter.ifPresent(
-                  s -> {
-                    try {
-                      indentation = Integer.parseInt(token.getValue());
-                      var subResult = parse(tokens, s.getParameterTypes()[0]);
-                      s.invoke(result, subResult);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                      throw new RuntimeException(e);
-                    }
-                  });
-            } else if(indentation > Integer.parseInt(token.getValue())){
-              indentation = Integer.parseInt(token.getValue());
-              out = true;
+            var newIndentation = token.getIndentation();
+            if (indentation < newIndentation) {
+              indentation = newIndentation;
+              setter.ifPresent(s -> setNestedValue(result, s, tokens));
+            } else if (indentation > newIndentation) {
+              indentation = newIndentation;
+              return result;
             }
           }
         }
-        previous = token;
-        if(out) break;
       }
       return result;
     } catch (InstantiationException
         | IllegalAccessException
         | InvocationTargetException
         | NoSuchMethodException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private <T> List<Method> getSetters(Class<T> resultType) {
+    return Arrays.stream(resultType.getMethods())
+        .filter(method -> method.getName().startsWith("set"))
+        .toList();
+  }
+
+  private <T> void setValue(T result, Method setter, String value) {
+    try {
+      setter.invoke(result, value);
+    } catch (IllegalAccessException | InvocationTargetException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private <T> void setNestedValue(T result, Method setter, List<Token> tokens) {
+    try {
+      var nestedValue = parse(tokens, setter.getParameterTypes()[0]);
+      setter.invoke(result, nestedValue);
+    } catch (IllegalAccessException | InvocationTargetException e) {
       throw new RuntimeException(e);
     }
   }

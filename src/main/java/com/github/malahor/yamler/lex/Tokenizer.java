@@ -24,23 +24,32 @@ public class Tokenizer {
   private void tokenizeLine(String line) {
     switch (line){
       case String s when s.matches(".*:") -> {
-        var spaces = line.length() - line.stripLeading().length();
-        var indentation = spaces/2;
-        tokens.add(new Token(TokenType.INDENTATION, String.valueOf(indentation)));
-        var identifier = line.substring(0, line.lastIndexOf(":"));
-        tokens.add(new Token(TokenType.IDENTIFIER, identifier.strip()));
+        saveIndentation(line);
+        saveIndetifier(line);
       }
       case String s when s.matches(".*:.+") -> {
-        var spaces = line.length() - line.stripLeading().length();
-        var indentation = spaces/2;
-        tokens.add(new Token(TokenType.INDENTATION, String.valueOf(indentation)));
-        var identifier = line.substring(0, line.lastIndexOf(":"));
-        tokens.add(new Token(TokenType.IDENTIFIER, identifier.strip()));
-        var value = line.substring(line.indexOf(SEPARATOR) + SEPARATOR.length());
-        tokens.add(new Token(TokenType.VALUE, value));
+        saveIndentation(line);
+        saveIndetifier(line);
+        saveValue(line);
       }
       default -> throw new RuntimeException();
     }
+  }
+
+  private void saveIndentation(String line) {
+    var spaces = line.length() - line.stripLeading().length();
+    var indentation = spaces / 2;
+    tokens.add(Token.indentation(indentation));
+  }
+
+  private void saveIndetifier(String line) {
+    var identifier = line.substring(0, line.lastIndexOf(":"));
+    tokens.add(Token.identifier(identifier.strip()));
+  }
+
+  private void saveValue(String line) {
+    var value = line.substring(line.indexOf(SEPARATOR) + SEPARATOR.length());
+    tokens.add(Token.value(value));
   }
 
 }
