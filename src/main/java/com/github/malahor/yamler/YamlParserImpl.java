@@ -9,6 +9,7 @@ public class YamlParserImpl implements YamlParser {
   public <T> T read(InputStream input, Class<T> resultType) {
     var tokenizer = new Tokenizer();
     var tokens = tokenizer.tokenize(input);
+    System.out.println(tokens);
     var parser = new Parser();
     return parser.parse(tokens, resultType);
   }

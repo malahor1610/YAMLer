@@ -5,8 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class Result {
+public class Challenge {
 
   private String name;
-  private Challenge challenge;
 }

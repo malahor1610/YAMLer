@@ -18,6 +18,7 @@ public class YamlParserTest {
   public void validTest() {
     var result = executeParsing("example.yml");
     Assertions.assertEquals("Coding Challenges", result.getName());
+    Assertions.assertEquals("YAML parser", result.getChallenge().getName());
   }
 
   private Result executeParsing(String yamlName) {
