@@ -30,7 +30,7 @@ public class YamlParserTest {
                 .name("YAML:parser")
                 .steps(5)
                 .finished(false)
-                .tags(Tags.builder().difficulty("intermediate").type("parsing").build())
+                .tags(Tags.builder().difficulty("intermediate\\n").type("parsing\nyaml\tfiles").build())
                 .build())
         .link(null)
         .author(null)

@@ -2,8 +2,8 @@ name: Coding Challenges
 challenge:
   name: YAML:parser
   tags:
-    difficulty: intermediate
-    type: parsing
+    difficulty: intermediate\n
+    type: "parsing\nyaml\tfiles"
   steps: 5
   finished: false
 solution: Java
