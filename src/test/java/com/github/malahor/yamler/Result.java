@@ -9,4 +9,5 @@ public class Result {
 
   private String name;
   private Challenge challenge;
+  private String solution;
 }

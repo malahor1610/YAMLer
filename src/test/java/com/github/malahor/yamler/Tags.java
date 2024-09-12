@@ -5,9 +5,8 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class Challenge {
+public class Tags {
 
-  private String name;
-  private Tags tags;
-  private String steps;
+  private String difficulty;
+  private String type;
 }

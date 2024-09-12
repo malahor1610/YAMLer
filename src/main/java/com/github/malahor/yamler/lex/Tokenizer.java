@@ -10,7 +10,6 @@ import java.util.List;
 public class Tokenizer {
 
   private static final String SEPARATOR = ":\s";
-  private static final String LINE_END = ":\r";
   private List<Token> tokens = new LinkedList<>();
 
   public List<Token> tokenize(InputStream input) {
@@ -23,20 +22,25 @@ public class Tokenizer {
   }
 
   private void tokenizeLine(String line) {
-    if(line.endsWith(":")) {
-      var identifier = line.substring(0, line.lastIndexOf(":"));
-      if(identifier.startsWith("\s\s")) {
-        tokens.add(new Token(TokenType.INDENTATION, "1"));
+    switch (line){
+      case String s when s.matches(".*:") -> {
+        var spaces = line.length() - line.stripLeading().length();
+        var indentation = spaces/2;
+        tokens.add(new Token(TokenType.INDENTATION, String.valueOf(indentation)));
+        var identifier = line.substring(0, line.lastIndexOf(":"));
+        tokens.add(new Token(TokenType.IDENTIFIER, identifier.strip()));
       }
-      tokens.add(new Token(TokenType.IDENTIFIER, identifier.strip()));
-    } else {
-      var identifier = line.substring(0, line.indexOf(SEPARATOR));
-      if(identifier.startsWith("\s\s")) {
-        tokens.add(new Token(TokenType.INDENTATION, "1"));
+      case String s when s.matches(".*:.+") -> {
+        var spaces = line.length() - line.stripLeading().length();
+        var indentation = spaces/2;
+        tokens.add(new Token(TokenType.INDENTATION, String.valueOf(indentation)));
+        var identifier = line.substring(0, line.lastIndexOf(":"));
+        tokens.add(new Token(TokenType.IDENTIFIER, identifier.strip()));
+        var value = line.substring(line.indexOf(SEPARATOR) + SEPARATOR.length());
+        tokens.add(new Token(TokenType.VALUE, value));
       }
-      tokens.add(new Token(TokenType.IDENTIFIER, identifier.strip()));
-      var value = line.substring(line.indexOf(SEPARATOR) + SEPARATOR.length());
-      tokens.add(new Token(TokenType.VALUE, value));
+      default -> throw new RuntimeException();
     }
   }
+
 }
