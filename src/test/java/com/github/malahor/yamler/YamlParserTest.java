@@ -17,12 +17,35 @@ public class YamlParserTest {
   @Test
   public void validTest() {
     var result = executeParsing("example.yml");
-    Assertions.assertEquals("Coding Challenges", result.getName());
-    Assertions.assertEquals("YAML parser", result.getChallenge().getName());
-    Assertions.assertEquals("5", result.getChallenge().getSteps());
-    Assertions.assertEquals("intermediate", result.getChallenge().getTags().getDifficulty());
-    Assertions.assertEquals("parsing", result.getChallenge().getTags().getType());
-    Assertions.assertEquals("Java", result.getSolution());
+    var expectedResult = buildExpectedResult();
+    Assertions.assertEquals(expectedResult, result);
+  }
+
+  private Result buildExpectedResult() {
+    return Result.builder()
+        .name("Coding Challenges")
+        .solution("Java")
+        .challenge(
+            Challenge.builder()
+                .name("YAML:parser")
+                .steps(5)
+                .finished(false)
+                .tags(Tags.builder().difficulty("intermediate").type("parsing").build())
+                .build())
+        .link(null)
+        .author(null)
+        .numbers(
+            Numbers.builder()
+                .decimal(-15)
+                .octal(7)
+                .hexadecimal(58)
+                .floating(17.3f)
+                .alsoFloating(.53f)
+                .infinite(Float.POSITIVE_INFINITY)
+                .nan(Float.NaN)
+                .maybe(null)
+                .build())
+        .build();
   }
 
   private Result executeParsing(String yamlName) {

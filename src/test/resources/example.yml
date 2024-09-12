@@ -1,8 +1,20 @@
 name: Coding Challenges
 challenge:
-  name: YAML parser
+  name: YAML:parser
   tags:
     difficulty: intermediate
     type: parsing
   steps: 5
+  finished: false
 solution: Java
+link: null
+author: ~
+numbers:
+  decimal: -15
+  octal: 0o7
+  hexadecimal: 0x3A
+  floating: 17.3
+  alsoFloating: .53
+  infinite: .inf
+  nan: .NaN
+  maybe:

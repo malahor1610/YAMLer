@@ -22,7 +22,7 @@ public class Token {
     return new Token(TokenType.VALUE, value);
   }
 
-  public int getIndentation(){
+  public int getIndentation() {
     return Integer.parseInt(value);
   }
 }

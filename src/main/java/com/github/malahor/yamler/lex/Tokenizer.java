@@ -22,18 +22,9 @@ public class Tokenizer {
   }
 
   private void tokenizeLine(String line) {
-    switch (line){
-      case String s when s.matches(".*:") -> {
-        saveIndentation(line);
-        saveIndetifier(line);
-      }
-      case String s when s.matches(".*:.+") -> {
-        saveIndentation(line);
-        saveIndetifier(line);
-        saveValue(line);
-      }
-      default -> throw new RuntimeException();
-    }
+    saveIndentation(line);
+    saveIndetifier(line);
+    if (line.matches(".*:.+")) saveValue(line);
   }
 
   private void saveIndentation(String line) {
@@ -43,7 +34,8 @@ public class Tokenizer {
   }
 
   private void saveIndetifier(String line) {
-    var identifier = line.substring(0, line.lastIndexOf(":"));
+    var endIndex = line.contains(SEPARATOR) ? line.indexOf(SEPARATOR) : line.lastIndexOf(":");
+    var identifier = line.substring(0, endIndex);
     tokens.add(Token.identifier(identifier.strip()));
   }
 
@@ -51,5 +43,4 @@ public class Tokenizer {
     var value = line.substring(line.indexOf(SEPARATOR) + SEPARATOR.length());
     tokens.add(Token.value(value));
   }
-
 }

@@ -16,31 +16,35 @@ public class Parser {
     try {
       var result = resultType.getConstructor().newInstance();
       var setters = getSetters(resultType);
-      Optional<Method> setter = Optional.empty();
-      for (; currentToken < tokens.size(); currentToken++) {
-        var token = tokens.get(currentToken);
-        switch (token.getType()) {
-          case IDENTIFIER -> setter = setter(setters, token.getValue());
-          case VALUE -> setter.ifPresent(s -> setValue(result, s, token.getValue()));
-          case INDENTATION -> {
-            var newIndentation = token.getIndentation();
-            if (indentation < newIndentation) {
-              indentation = newIndentation;
-              setter.ifPresent(s -> setNestedValue(result, s, tokens));
-            } else if (indentation > newIndentation) {
-              indentation = newIndentation;
-              return result;
-            }
-          }
-        }
-      }
-      return result;
+      return getResult(tokens, setters, result);
     } catch (InstantiationException
         | IllegalAccessException
         | InvocationTargetException
         | NoSuchMethodException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private <T> T getResult(List<Token> tokens, List<Method> setters, T result) {
+    Optional<Method> setter = Optional.empty();
+    for (; currentToken < tokens.size(); currentToken++) {
+      var token = tokens.get(currentToken);
+      switch (token.getType()) {
+        case IDENTIFIER -> setter = setter(setters, token.getValue());
+        case VALUE -> setter.ifPresent(s -> setValue(result, s, token.getValue()));
+        case INDENTATION -> {
+          var newIndentation = token.getIndentation();
+          if (indentation < newIndentation) {
+            indentation = newIndentation;
+            setter.ifPresent(s -> setNestedValue(result, s, tokens));
+          } else if (indentation > newIndentation) {
+            indentation = newIndentation;
+            return result;
+          }
+        }
+      }
+    }
+    return result;
   }
 
   private <T> List<Method> getSetters(Class<T> resultType) {
@@ -51,7 +55,8 @@ public class Parser {
 
   private <T> void setValue(T result, Method setter, String value) {
     try {
-      setter.invoke(result, value);
+      var typedValue = ValueProvider.typedValue(value);
+      setter.invoke(result, typedValue);
     } catch (IllegalAccessException | InvocationTargetException e) {
       throw new RuntimeException(e);
     }
