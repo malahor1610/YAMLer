@@ -1,11 +1,7 @@
 package com.github.malahor.yamler.parse;
 
 import com.github.malahor.yamler.lex.Token;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 public class Parser {
 
@@ -13,67 +9,27 @@ public class Parser {
   private int indentation = 0;
 
   public <T> T parse(List<Token> tokens, Class<T> resultType) {
-    try {
-      var result = resultType.getConstructor().newInstance();
-      var setters = getSetters(resultType);
-      return getResult(tokens, setters, result);
-    } catch (InstantiationException
-        | IllegalAccessException
-        | InvocationTargetException
-        | NoSuchMethodException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private <T> T getResult(List<Token> tokens, List<Method> setters, T result) {
-    Optional<Method> setter = Optional.empty();
+    var resultBuilder = new ResultBuilder<T>(resultType);
+    var field = "";
     for (; currentToken < tokens.size(); currentToken++) {
       var token = tokens.get(currentToken);
       switch (token.getType()) {
-        case IDENTIFIER -> setter = setter(setters, token.getValue());
-        case VALUE -> setter.ifPresent(s -> setValue(result, s, token.getValue()));
+        case IDENTIFIER -> field = token.getValue();
+        case VALUE -> resultBuilder.setValue(field, token.getValue());
         case INDENTATION -> {
           var newIndentation = token.getIndentation();
           if (indentation < newIndentation) {
             indentation = newIndentation;
-            setter.ifPresent(s -> setNestedValue(result, s, tokens));
+            var nestedValue = parse(tokens, resultBuilder.determineClass(field));
+            resultBuilder.setNestedValue(field, nestedValue);
           } else if (indentation > newIndentation) {
             indentation = newIndentation;
-            return result;
+            return resultBuilder.getResult();
           }
         }
       }
     }
-    return result;
+    return resultBuilder.getResult();
   }
 
-  private <T> List<Method> getSetters(Class<T> resultType) {
-    return Arrays.stream(resultType.getMethods())
-        .filter(method -> method.getName().startsWith("set"))
-        .toList();
-  }
-
-  private <T> void setValue(T result, Method setter, String value) {
-    try {
-      var typedValue = ValueProvider.typedValue(value);
-      setter.invoke(result, typedValue);
-    } catch (IllegalAccessException | InvocationTargetException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private <T> void setNestedValue(T result, Method setter, List<Token> tokens) {
-    try {
-      var nestedValue = parse(tokens, setter.getParameterTypes()[0]);
-      setter.invoke(result, nestedValue);
-    } catch (IllegalAccessException | InvocationTargetException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private Optional<Method> setter(List<Method> setters, String field) {
-    return setters.stream()
-        .filter(setter -> setter.getName().equalsIgnoreCase("set" + field))
-        .findFirst();
-  }
 }
