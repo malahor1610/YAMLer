@@ -16,6 +16,7 @@ public class Parser {
       switch (token.getType()) {
         case IDENTIFIER -> field = token.getValue();
         case VALUE -> resultBuilder.setValue(field, token.getValue());
+        case ARRAY_ELEMENT -> resultBuilder.addValue(token.getValue());
         case INDENTATION -> {
           var newIndentation = token.getIndentation();
           if (indentation < newIndentation) {

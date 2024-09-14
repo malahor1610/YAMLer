@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -13,7 +15,9 @@ public class Challenge {
 
   private String name;
   private Tags tags;
-  private int steps;
+  private int stepsNumber;
+  private ArrayList<String> stepsDescriptions;
+  private ArrayList<String> steps;
   private boolean finished;
   private String introduction;
   private String description;

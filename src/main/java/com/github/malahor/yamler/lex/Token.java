@@ -4,11 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
 public class Token {
 
   private TokenType type;
   private String value;
+
+  public Token(TokenType type, String value) {
+    this.type = type;
+    this.value = value;
+    System.out.println(this);
+  }
 
   public static Token indentation(int indentation) {
     return new Token(TokenType.INDENTATION, String.valueOf(indentation));
@@ -20,6 +25,10 @@ public class Token {
 
   public static Token value(String value) {
     return new Token(TokenType.VALUE, value.strip());
+  }
+
+  public static Token arrayElement(String value) {
+    return new Token(TokenType.ARRAY_ELEMENT, value.strip());
   }
 
   public int getIndentation() {

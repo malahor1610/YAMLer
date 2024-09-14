@@ -2,6 +2,7 @@ package com.github.malahor.yamler.parse;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
@@ -40,6 +41,11 @@ public class ResultBuilder<T> {
     } catch (IllegalAccessException | InvocationTargetException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public void addValue(String value) {
+    var typedValue = ValueProvider.typedValue(value);
+    if (result instanceof ArrayList a) a.add(typedValue);
   }
 
   public Class<?> determineClass(String field) {
