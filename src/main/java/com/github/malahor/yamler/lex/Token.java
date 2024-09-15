@@ -1,6 +1,5 @@
 package com.github.malahor.yamler.lex;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
@@ -27,8 +26,8 @@ public class Token {
     return new Token(TokenType.VALUE, value.strip());
   }
 
-  public static Token arrayElement(String value) {
-    return new Token(TokenType.ARRAY_ELEMENT, value.strip());
+  public static Token arrayElement(String element) {
+    return new Token(TokenType.ARRAY_ELEMENT, element.strip());
   }
 
   public int getIndentation() {
